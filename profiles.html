@@ -1,0 +1,538 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Author Directory</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #3b82f6;
+            --primary-dark: #1d4ed8;
+            --secondary-color: #cbd5e1;
+            --background-color: #f1f5f9;
+            --card-background: #ffffff;
+            --text-primary: #1e293b;
+            --text-secondary: #64748b;
+            --success-color: #22c55e;
+            --border-radius-lg: 16px;
+            --border-radius: 12px;
+            --border-radius-sm: 8px;
+            --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+            --shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+            --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1);
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: var(--background-color);
+            color: var(--text-primary);
+            line-height: 1.6;
+        }
+
+        .banner-container {
+            background: linear-gradient(135deg, #b4bcf9, #7b94f9);
+            padding: 2rem 0;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .banner-container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: radial-gradient(circle at 50% 50%, rgba(59, 130, 246, 0.1) 0%, transparent 50%);
+        }
+
+        .banner {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+            text-align: center;
+            position: relative;
+        }
+
+        .banner img {
+            height: 150px;
+            object-fit: contain;
+            transition: var(--transition);
+            filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.1));
+        }
+
+        .main-container {
+            max-width: 1200px;
+            margin: -3rem auto 3rem;
+            padding: 0 1.5rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        .search-container {
+            background: var(--card-background);
+            padding: 2rem;
+            border-radius: var(--border-radius-lg);
+            box-shadow: var(--shadow-lg);
+            margin-bottom: 2rem;
+        }
+
+        .search-wrapper {
+            position: relative;
+            margin-bottom: 1rem;
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 1.5rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-secondary);
+            font-size: 1.2rem;
+        }
+
+        .search-bar {
+            width: 100%;
+            padding: 1.25rem 1.25rem 1.25rem 3.5rem;
+            font-size: 1.1rem;
+            border: 2px solid var(--secondary-color);
+            border-radius: var(--border-radius);
+            outline: none;
+            transition: var(--transition);
+            background-color: var(--card-background);
+            color: var(--text-primary);
+        }
+
+        .search-bar:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
+        }
+
+        .search-results {
+            margin-top: 1rem;
+            display: none;
+        }
+
+        .search-results.active {
+            display: block;
+            animation: slideDown 0.3s ease;
+        }
+
+        .top-authors {
+            background: var(--card-background);
+            border-radius: var(--border-radius-lg);
+            box-shadow: var(--shadow-lg);
+            padding: 2rem;
+        }
+
+        .section-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 2rem;
+            padding-bottom: 1.5rem;
+            border-bottom: 2px solid var(--secondary-color);
+        }
+
+        .section-header h2 {
+            font-size: 1.75rem;
+            color: var(--text-primary);
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .section-header i {
+            color: var(--primary-color);
+        }
+
+        .authors-grid {
+            display: grid;
+            gap: 1.5rem;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        }
+
+        .author-card {
+            background: var(--card-background);
+            border-radius: var(--border-radius);
+            padding: 1.5rem;
+            transition: var(--transition);
+            cursor: pointer;
+            border: 1px solid var(--secondary-color);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .author-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(to right, var(--primary-color), var(--primary-dark));
+            opacity: 0;
+            transition: var(--transition);
+        }
+
+        .author-card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow);
+            border-color: var(--primary-color);
+        }
+
+        .author-card:hover::before {
+            opacity: 1;
+        }
+
+        .author-rank {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background: var(--primary-color);
+            color: white;
+            width: 2.5rem;
+            height: 2.5rem;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 1.1rem;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .author-info {
+            margin-top: 0.5rem;
+        }
+
+        .author-info h3 {
+            font-size: 1.3rem;
+            color: var(--text-primary);
+            margin-bottom: 1rem;
+            font-weight: 600;
+        }
+
+        .author-meta {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.75rem;
+        }
+
+        .area-tag {
+            background-color: #f8fafc;
+            color: var(--text-secondary);
+            padding: 0.5rem 1rem;
+            border-radius: var(--border-radius-sm);
+            font-size: 0.875rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            border: 1px solid var(--secondary-color);
+            transition: var(--transition);
+        }
+
+        .area-tag:hover {
+            background-color: var(--primary-color);
+            color: white;
+            border-color: var(--primary-color);
+        }
+
+        .article-count {
+            margin-top: 1rem;
+            background-color: #f0f9ff;
+            color: var(--primary-color);
+            padding: 0.5rem 1rem;
+            border-radius: var(--border-radius-sm);
+            font-size: 0.875rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-weight: 500;
+        }
+
+        .stats-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1rem;
+            margin-top: 1.5rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid var(--secondary-color);
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary-color);
+            margin-bottom: 0.25rem;
+        }
+
+        .stat-label {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+        }
+
+        @keyframes slideDown {
+            from { 
+                opacity: 0;
+                transform: translateY(-1rem);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .main-container {
+                margin-top: -2rem;
+                padding: 0 1rem;
+            }
+
+            .search-container,
+            .top-authors {
+                padding: 1.5rem;
+            }
+
+            .authors-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .section-header h2 {
+                font-size: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="banner-container">
+        <div class="banner">
+            <img src="https://blogger.googleusercontent.com/img/a/AVvXsEgvIiMRu5P_3k96Y1YES5_nsorOLBf5nE4xdHGYT1QL3_2Em0ENwwvUZA_MQZBBP-4qhJnaArH2itWbpzjmWzgNvtdD7cG1_atnmDThQY-O_U6uNivB_PXzPrx0bCR8FoGIFupUIQcgj5X1jXdfShG5RNOQTxqriZ1_vdfasOU_F5W4k1KET0aRYS5bhdw0=s150" alt="Blog Banner" style="width: 150px; height: auto;">
+        </div>
+        </div>
+    </div>
+    
+
+    <div class="main-container">
+        <div class="search-container">
+            <div class="search-wrapper">
+                <i class="fas fa-magnifying-glass search-icon"></i>
+                <input type="text" class="search-bar" placeholder="Search writer name or area of research...">
+            </div>
+            <div class="search-results" id="searchResults"></div>
+        </div>
+
+        <div class="top-authors">
+            <div class="section-header">
+                <h2>
+                    <i class="fas fa-crown"></i>
+                    Featured Authors
+                </h2>
+            </div>
+            
+            <div class="authors-grid">
+                <div class="author-card">
+                    <div class="author-rank">1</div>
+                    <div class="author-info">
+                        <h3>Dr. Sarah Johnson</h3>
+                        <div class="author-meta">
+                            <span class="area-tag">
+                                <i class="fas fa-robot"></i>
+                                Machine Learning
+                            </span>
+                            <span class="area-tag">
+                                <i class="fas fa-brain"></i>
+                                AI Ethics
+                            </span>
+                        </div>
+                        <div class="article-count">
+                            <i class="fas fa-file-alt"></i>
+                            42 Published Articles
+                        </div>
+                        <div class="stats-container">
+                            <div class="stat-item">
+                                <div class="stat-value">15K</div>
+                                <div class="stat-label">Total Views</div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="stat-value">98%</div>
+                                <div class="stat-label">Success Rate</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="author-card">
+                    <div class="author-rank">2</div>
+                    <div class="author-info">
+                        <h3>Prof. Michael Chen</h3>
+                        <div class="author-meta">
+                            <span class="area-tag">
+                                <i class="fas fa-atom"></i>
+                                Quantum Computing
+                            </span>
+                        </div>
+                        <div class="article-count">
+                            <i class="fas fa-file-alt"></i>
+                            38 Published Articles
+                        </div>
+                        <div class="stats-container">
+                            <div class="stat-item">
+                                <div class="stat-value">12K</div>
+                                <div class="stat-label">Total Views</div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="stat-value">95%</div>
+                                <div class="stat-label">Success Rate</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="author-card">
+                    <div class="author-rank">3</div>
+                    <div class="author-info">
+                        <h3>Dr. Emily Rodriguez</h3>
+                        <div class="author-meta">
+                            <span class="area-tag">
+                                <i class="fas fa-cloud-sun"></i>
+                                Climate Science
+                            </span>
+                        </div>
+                        <div class="article-count">
+                            <i class="fas fa-file-alt"></i>
+                            35 Published Articles
+                        </div>
+                        <div class="stats-container">
+                            <div class="stat-item">
+                                <div class="stat-value">10K</div>
+                                <div class="stat-label">Total Views</div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="stat-value">92%</div>
+                                <div class="stat-label">Success Rate</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="author-card">
+                    <div class="author-rank">4</div>
+                    <div class="author-info">
+                        <h3>Prof. David Kim</h3>
+                        <div class="author-meta">
+                            <span class="area-tag">
+                                <i class="fas fa-dna"></i>
+                                Biotechnology
+                            </span>
+                        </div>
+                        <div class="article-count">
+                            <i class="fas fa-file-alt"></i>
+                            31 Published Articles
+                        </div>
+                        <div class="stats-container">
+                            <div class="stat-item">
+                                <div class="stat-value">9K</div>
+                                <div class="stat-label">Total Views</div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="stat-value">90%</div>
+                                <div class="stat-label">Success Rate</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="author-card">
+                    <div class="author-rank">5</div>
+                    <div class="author<div class="author-info">
+                        <h3>Dr. Lisa Patel</h3>
+                        <div class="author-meta">
+                            <span class="area-tag">
+                                <i class="fas fa-brain"></i>
+                                Neuroscience
+                            </span>
+                        </div>
+                        <div class="article-count">
+                            <i class="fas fa-file-alt"></i>
+                            29 Published Articles
+                        </div>
+                        <div class="stats-container">
+                            <div class="stat-item">
+                                <div class="stat-value">8K</div>
+                                <div class="stat-label">Total Views</div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="stat-value">88%</div>
+                                <div class="stat-label">Success Rate</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const searchBar = document.querySelector('.search-bar');
+        const searchResults = document.getElementById('searchResults');
+
+        searchBar.addEventListener('input', (e) => {
+            const searchTerm = e.target.value.toLowerCase();
+            if (searchTerm.length > 2) {
+                searchResults.innerHTML = `
+                    <div class="author-card">
+                        <div class="author-info">
+                            <h3>Search Results for "${searchTerm}"</h3>
+                            <div class="author-meta">
+                                <span class="area-tag">
+                                    <i class="fas fa-search"></i>
+                                    Click on an author to view their profile
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                searchResults.classList.add('active');
+            } else {
+                searchResults.classList.remove('active');
+            }
+        });
+
+        // Add hover effect to author cards
+        const authorCards = document.querySelectorAll('.author-card');
+        authorCards.forEach(card => {
+            card.addEventListener('mouseenter', () => {
+                card.style.transform = 'translateY(-4px)';
+            });
+            
+            card.addEventListener('mouseleave', () => {
+                card.style.transform = 'translateY(0)';
+            });
+        });
+
+        // Smooth scroll for navigation
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                document.querySelector(this.getAttribute('href')).scrollIntoView({
+                    behavior: 'smooth'
+                });
+            });
+        });
+    </script>
+</body>
+</html>
